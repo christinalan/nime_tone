@@ -1,0 +1,23 @@
+.button {
+  padding: 5px;
+}
+
+.dropbtn {
+  background-color: #0025ca;
+  color: white;
+  padding: 16px;
+  font-size: 16px;
+  border: none;
+}
+
+.dropdownSynth {
+  margin-top: 15px;
+  position: relative;
+  display: inline-block;
+}
+
+.effects {
+  margin: 15px 10px;
+  position: relative;
+  display: inline-block;
+}
