@@ -7,19 +7,29 @@
     <link href="style.css" rel="stylesheet" />
   </head>
   <body>
-    <div><button id="button-start">Start</button></div>
-    <div><button id="button-stop">Stop</button></div>
+    <div class="play_buttons">
+      <div><button id="button-start">Start</button></div>
+      <div><button id="button-stop">Stop</button></div>
+    </div>
 
     <div class="dropdownSynth">
       <select id="dropdown" class="dropbtn">
         Dropdown
       </select>
     </div>
-    <!-- <div class="effects">
+    <div class="effects">
       <select id="effects" class="dropbtn">
         Effects
       </select>
-    </div> -->
+    </div>
+    <div class="sampler"><button id="start_sampler">Sampler</button></div>
+    <div id="files">
+      <button id="addSamples">Add Samples</button>
+      <input type="file" accept=" audio/*" />
+      <audio id="audio" controls>
+        <source src="" id="src" />
+      </audio>
+    </div>
     <script src="app.js"></script>
   </body>
 </html>

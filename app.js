@@ -26,6 +26,16 @@ let synths = [
   "Mono Synth",
 ];
 
+let effects = [
+  "filter",
+  "delay",
+  "reverb",
+  "distortion",
+  "tremolo",
+  "cheby",
+  "phaser",
+];
+
 let triggers = {
   am: false,
   fm: false,
@@ -35,17 +45,30 @@ let triggers = {
   mono: false,
 };
 
-let chosenSynth;
+let trigeffects = {
+  filter: false,
+  delay: false,
+  reverb: false,
+  distortion: false,
+  tremolo: false,
+  cheby: false,
+  phaser: false,
+};
+
+let chosenSynth, chosenEffect, sampler;
+let samplerOn;
 
 let value = 0.1;
 let noteM;
 let notes = [];
+
 function mapRange(value, minf, maxf, mins, maxs) {
   value = (value - minf) / (maxf - minf);
   return mins + value * (maxs - mins);
 }
 
 let synthInstruments = [];
+let toneEffects = [];
 
 // document.querySelector("button")?.addEventListener("click", async () => {
 //   await Tone.start();
@@ -65,10 +88,14 @@ function calculateOctave(valueString) {
 
 window.addEventListener("load", () => {
   let dropdown = document.getElementById("dropdown");
+  let drop_effects = document.getElementById("effects");
   let defaultoption = document.createElement("option");
+  let defaultoption1 = document.createElement("option");
   defaultoption.text = "Select Synth";
+  defaultoption1.text = "Select Effect";
 
   dropdown.add(defaultoption);
+  drop_effects.add(defaultoption1);
 
   for (let i = 0; i < synths.length; i++) {
     let synthOption = document.createElement("option");
@@ -76,7 +103,14 @@ window.addEventListener("load", () => {
     dropdown.add(synthOption);
   }
 
+  for (let i = 0; i < effects.length; i++) {
+    let effectOption = document.createElement("option");
+    effectOption.text = effects[i];
+    drop_effects.add(effectOption);
+  }
+
   dropdown.selectedIndex = 0;
+  drop_effects.selectedIndex = 0;
 
   dropdown.addEventListener("change", function (e) {
     if (e.target.value == "FM Synth") {
@@ -85,33 +119,114 @@ window.addEventListener("load", () => {
       });
       triggers.fm = true;
     }
-    chosenSynth = synthInstruments[0];
     if (e.target.value == "AM Synth") {
       Object.keys(triggers).forEach((item) => {
         item != "AM Synth" ? triggers[item] : false;
       });
       triggers.am = true;
     }
-    chosenSynth = synthInstruments[1];
     if (e.target.value == "Membrane Synth") {
       Object.keys(triggers).forEach((item) => {
         item != "Membrane Synth" ? triggers[item] : false;
       });
       triggers.membrane = true;
     }
-
     if (e.target.value == "Plucky Synth") {
+      Object.keys(triggers).forEach((item) => {
+        item != "Plucky Synth" ? triggers[item] : false;
+      });
       triggers.pluck = true;
     }
-
     if (e.target.value == "Metal Synth") {
+      Object.keys(triggers).forEach((item) => {
+        item != "Metal Synth" ? triggers[item] : false;
+      });
       triggers.metal = true;
     }
-
     if (e.target.value == "Mono Synth") {
+      Object.keys(triggers).forEach((item) => {
+        item != "Mono Synth" ? triggers[item] : false;
+      });
       triggers.mono = true;
     }
   });
+
+  drop_effects.addEventListener("change", function (e) {
+    if (e.target.value == "filter") {
+      Object.keys(trigeffects).forEach((item) => {
+        item != "filter" ? trigeffects[item] : false;
+      });
+      trigeffects.filter = true;
+    }
+    if (e.target.value == "delay") {
+      Object.keys(trigeffects).forEach((item) => {
+        item != "delay" ? trigeffects[item] : false;
+      });
+      trigeffects.delay = true;
+    }
+    if (e.target.value == "reverb") {
+      Object.keys(trigeffects).forEach((item) => {
+        item != "reverb" ? trigeffects[item] : false;
+      });
+      trigeffects.reverb = true;
+    }
+    if (e.target.value == "distortion") {
+      Object.keys(trigeffects).forEach((item) => {
+        item != "distortion" ? trigeffects[item] : false;
+      });
+      trigeffects.distortion = true;
+    }
+    if (e.target.value == "tremolo") {
+      Object.keys(trigeffects).forEach((item) => {
+        item != "tremolo" ? trigeffects[item] : false;
+      });
+      trigeffects.tremolo = true;
+    }
+    if (e.target.value == "cheby") {
+      Object.keys(trigeffects).forEach((item) => {
+        item != "cheby" ? trigeffects[item] : false;
+      });
+      trigeffects.cheby = true;
+    }
+    if (e.target.value == "phaser") {
+      Object.keys(trigeffects).forEach((item) => {
+        item != "phaser" ? trigeffects[item] : false;
+      });
+      trigeffects.phaser = true;
+    }
+  });
+
+  sampler = document.getElementById("start_sampler");
+  sampler.addEventListener("click", () => {
+    document.getElementById("files").style.display = "block";
+    samplerOn = true;
+  });
+  let addS = document.getElementById("addSamples");
+  addS.addEventListener("click", () => {
+    let newSample = document.createElement("input");
+    newSample.setAttribute("type", "file", "accept", "audio");
+    newSample.innerHTML = "Choose File";
+    document.body.appendChild(newSample);
+  });
+
+  let sfiles = document.getElementsByTagName("input");
+  for (var sfile of Array.from(sfiles)) {
+    sfile.addEventListener("click", () => {
+      console.log("clicked");
+    });
+
+    sfile.addEventListener("change", () => {
+      console.log("changed");
+    });
+  }
+
+  function handleFiles(event) {
+    let samplerFiles = event.target.files;
+    let audiosource = document.getElementById("src");
+    audiosource.src = URL.createObjectURL(samplerFiles[0]);
+    document.getElementById("audio").load();
+    console.log(audiosource.src);
+  }
 });
 
 document.getElementById("button-start").addEventListener("click", async () => {
@@ -138,10 +253,9 @@ document.getElementById("button-start").addEventListener("click", async () => {
 
 //stop button
 document.getElementById("button-stop").addEventListener("click", async () => {
-  loop.stop();
+  seq.stop();
   console.log("stop");
   Tone.Transport.stop();
-  loop.mute = true;
 });
 
 function init() {
@@ -158,7 +272,6 @@ function init() {
   }).toDestination();
 
   const amSynth = new Tone.AMSynth({
-    frequency: freqV,
     envelope: {
       attack: 0.01,
       decay: 1.4,
@@ -168,7 +281,6 @@ function init() {
   }).toDestination();
 
   const membraneSynth = new Tone.MembraneSynth({
-    frequency: freqV,
     envelope: {
       attack: 0.01,
       decay: 1.4,
@@ -178,22 +290,20 @@ function init() {
   }).toDestination();
 
   const pluckSynth = new Tone.PluckSynth({
-    activeVoices: freqV,
+    activeVoices: 3,
   }).toDestination();
-  pluckSynth.set({ detune: -200 });
+  pluckSynth.set({ detune: -100 });
 
   const metalSynth = new Tone.MetalSynth({
-    frequency: freqV,
     envelope: {
       attack: 0.1,
       decay: 2,
       release: 0.8,
     },
-    resonance: freqV,
+    resonance: 5,
   }).toDestination();
 
   const monoSynth = new Tone.MetalSynth({
-    frequency: freqV - 1000,
     envelope: {
       attack: 0.1,
       decay: 2,
@@ -212,8 +322,6 @@ function init() {
     metalSynth,
     monoSynth
   );
-
-  // chosenSynth.triggerAttackRelease(notes[0]);
 
   if (triggers.fm == true) {
     chosenSynth = synthInstruments[0];
@@ -239,37 +347,70 @@ function init() {
     chosenSynth = synthInstruments[5];
   }
 
-  // for (let i = 0; i < notes.length; i++) {
-  //   chosenSynth.triggerAttackRelease(notes[i], "2n");
-  // }
+  console.log(freqV);
 
-  // const filter = new Tone.Filter(freqV, "lowpass").toDestination();
-  // chosenSynth.connect(filter);
+  const filter = new Tone.Filter(freqV, "highpass").toDestination();
 
-  // const feedbackDelay = new Tone.FeedbackDelay("8n", 0.5).toDestination();
-  // chosenSynth.connect(feedbackDelay);
+  const feedbackDelay = new Tone.FeedbackDelay("4n", 0.5).toDestination();
 
-  // const distortion = new Tone.Distortion(freqV).toDestination();
-  // chosenSynth.connect(distortion);
+  const distortion = new Tone.Distortion(0.8).toDestination();
 
-  // const freeverb = new Tone.Freeverb().toDestination();
-  // freeverb.dampening = 1000;
-  // chosenSynth.connect(freeverb);
+  const freeverb = new Tone.Freeverb().toDestination();
+  freeverb.dampening = 1000;
 
-  // const tremolo = new Tone.Tremolo(9, freqV).toDestination().start();
-  // chosenSynth.connect(tremolo);
+  const tremolo = new Tone.Tremolo(9, 0.75).toDestination().start();
 
-  // const cheby = new Tone.Chebyshev(50).toDestination();
-  // chosenSynth.connect(cheby);
+  const cheby = new Tone.Chebyshev(50).toDestination();
 
-  // const phaser = new Tone.Phaser({
-  //   frequency: 15,
-  //   octaves: 5,
-  //   baseFrequency: freqV,
-  // }).toDestination();
-  // chosenSynth.connect(phaser);
+  const phaser = new Tone.Phaser({
+    frequency: 15,
+    octaves: 5,
+    baseFrequency: freqV,
+  }).toDestination();
+
+  toneEffects.push(
+    filter,
+    feedbackDelay,
+    distortion,
+    freeverb,
+    tremolo,
+    cheby,
+    phaser
+  );
+
+  if (trigeffects.filter == true) {
+    chosenEffect = toneEffects[0];
+  }
+
+  if (trigeffects.delay == true) {
+    chosenEffect = toneEffects[1];
+  }
+
+  if (trigeffects.reverb == true) {
+    chosenEffect = toneEffects[2];
+  }
+
+  if (trigeffects.distortion == true) {
+    chosenEffect = stoneEffects[3];
+  }
+
+  if (trigeffects.tremolo == true) {
+    chosenEffect = toneEffects[4];
+  }
+
+  if (trigeffects.cheby == true) {
+    chosenEffect = toneEffects[5];
+  }
+
+  if (trigeffects.phaser == true) {
+    chosenEffect = toneEffects[6];
+  }
+
+  chosenSynth.connect(chosenEffect);
+
+  //sampler stuff
+  if ((samplerOn = true)) {
+    urls: {
+    }
+  }
 }
-
-// const player = new Tone.Player("testSounds/pigeons.mp3").toDestination();
-// // play as soon as the buffer is loaded
-// player.autostart = true;
